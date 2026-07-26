@@ -35,7 +35,9 @@ _STOP_METHODS = {
 def render_sidebar() -> Inputs | None:
     """Draw the sidebar form. Returns ``Inputs`` on submit, else ``None``."""
     st.sidebar.title("🔭 SpyGlass")
-    st.sidebar.caption("Calculadora de Riesgo")
+    st.sidebar.caption(
+        "Calculadora de Riesgo  \nby [EarningSpy.ai](https://earningspy.ai/)"
+    )
     st.sidebar.divider()
 
     with st.sidebar.form("sizer"):
