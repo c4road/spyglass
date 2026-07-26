@@ -1,16 +1,8 @@
-"""Lens registry — the single list ``app.py`` reads to build the sidebar.
+"""SpyGlass lenses.
 
-To add a new SpyGlass tool: write ``lenses/your_tool.py`` with a ``Lens``
-subclass, import it here, and append an instance to ``LENSES``. Nothing else
-changes. Order here is the order shown in the sidebar.
+Each lens is a self-contained Streamlit app in its own subpackage, with its own
+``app.py`` entry point — there is no shared router or registry. Shared, pure
+logic lives in the repo-root ``core/`` package.
+
+    streamlit run lenses/position_sizer/app.py
 """
-
-from lenses.base import Lens
-from lenses.position_sizer import PositionSizerLens
-
-# The registered lenses, in sidebar order. Add new tools here.
-LENSES: list[Lens] = [
-    PositionSizerLens(),
-]
-
-__all__ = ["Lens", "LENSES"]

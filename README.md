@@ -1,8 +1,10 @@
 # 🔭 SpyGlass
 
-**Focused trading & research lenses on market risk.** A small Streamlit app where
-each tool is a *lens* — pick one from the sidebar, type a ticker, get a clean,
-actionable answer. No code in sight, no install for the user.
+**Focused trading & research lenses on market risk.** Each tool is a *lens* — its
+own small Streamlit app. Type a ticker in the sidebar, get a clean, actionable
+answer. No code in sight, no install for the user.
+
+The user-facing interface is in **Spanish**.
 
 SpyGlass is **fully self-contained**: it depends only on `streamlit / pandas /
 numpy / scipy / plotly / requests`, and pulls market data from public, keyless
@@ -15,11 +17,11 @@ and it just works.
 
 ## Lenses
 
-| Lens | What it does |
-| --- | --- |
-| 🎯 **Position Sizer** | You choose the **dollars to risk**; it fetches the live price, computes **VaR / CVaR** and their stop prices (plus an ATR stop), sizes the position so a stop-out costs (about) your budget, draws the **return distribution** with VaR/CVaR markers, and prints a ready-to-enter **bracket order ticket**. |
+| Lens | Run it | What it does |
+| --- | --- | --- |
+| 🎯 **Calculadora de Riesgo** | `streamlit run lenses/position_sizer/app.py` | You choose the **dollars to risk**; it fetches the live price, computes **VaR / CVaR** and their stop prices (plus an ATR stop), sizes the position so a stop-out costs (about) your budget, draws the **return distribution** with VaR/CVaR markers, and prints a ready-to-enter **bracket order ticket**. |
 
-*More lenses land here as they're built — each is one new file (see [Adding a lens](#adding-a-lens)).*
+*More lenses land here as they're built — each is one new directory (see [Adding a lens](#adding-a-lens)).*
 
 ---
 
@@ -27,26 +29,29 @@ and it just works.
 
 ```bash
 pip install -r requirements.txt
-streamlit run app.py
+streamlit run lenses/position_sizer/app.py
 ```
 
-Opens at `http://localhost:8501`. Pick a lens, enter a ticker + your risk budget,
-hit **Compute**.
+Opens at `http://localhost:8501`. Enter a ticker + your risk budget in the
+sidebar, hit **Calcular**.
 
 ### Deploy (Streamlit Community Cloud)
 
 1. Push this repo to GitHub.
 2. On [share.streamlit.io](https://share.streamlit.io) → **New app** → pick the repo
-   and `app.py`.
+   and the lens you want as the main file, e.g. `lenses/position_sizer/app.py`.
 3. It builds from `requirements.txt` and gives you a public URL. Every push
    redeploys.
+
+Each lens deploys as its own app (its own URL) from the same repo — point a second
+app at a different `lenses/*/app.py`.
 
 Free-tier apps sleep after inactivity (first visit wakes in a few seconds) — add a
 keep-alive ping if you need it always-warm.
 
 ---
 
-## The Position Sizer, briefly
+## The Calculadora de Riesgo, briefly
 
 The risk-first rule: **decide the dollars you'll risk, and let that set your share
 count.**
@@ -90,15 +95,16 @@ SELL  -38 SPY  @ STOP 725.81   (VaR 95% · -1.74%)
 
 ## Architecture
 
-Built to grow: adding a tool never touches `app.py` or any other lens.
+Built to grow: **each lens is its own standalone app**, so adding a tool never
+touches an existing file. Lenses share only the pure `core/` package.
 
 ```
 spyglass/
-  app.py                 # entry: sidebar picks a lens, renders it (never changes)
   lenses/
-    base.py              # the Lens contract (name, icon, render())
-    __init__.py          # LENSES registry (sidebar order)
-    position_sizer.py    # tool #1
+    position_sizer/      # tool #1 — one self-contained app
+      app.py             # entry point: streamlit run lenses/position_sizer/app.py
+      sidebar.py         # all inputs -> a frozen Inputs dataclass
+      view.py            # renders the results from those Inputs
   core/                  # pure, UI-free, self-contained logic — the portable heart
     risk.py              # VaR, CVaR, ATR, position sizing
     data.py              # Yahoo OHLC + spot fetch (cached, graceful failure)
@@ -109,17 +115,18 @@ spyglass/
 ```
 
 **Separation of concerns:** all math and data live in `core/` (pure functions, no
-Streamlit — unit-testable and reusable); lenses are thin render layers. Keep it
-that way.
+Streamlit — unit-testable and reusable); lenses are thin render layers. Within a
+lens, `sidebar.py` owns every widget and `view.py` only draws results — so the
+main area stays pure output. Keep it that way.
 
 ### Adding a lens
 
-1. Write `lenses/your_tool.py` with a class that subclasses `Lens` (set `name`,
-   `icon`, `description`; implement `render()`).
-2. Import it in `lenses/__init__.py` and append an instance to `LENSES`.
+1. Create `lenses/your_tool/` with `app.py`, `sidebar.py` and `view.py` — copy the
+   shape of `position_sizer/`.
+2. Run it: `streamlit run lenses/your_tool/app.py`.
 
-That's it — the sidebar and routing pick it up automatically. Put the heavy logic
-in `core/`, not in the lens.
+That's it — no registry to update, nothing else to touch. Put the heavy logic in
+`core/`, not in the lens.
 
 ---
 
