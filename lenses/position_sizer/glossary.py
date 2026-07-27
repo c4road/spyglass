@@ -81,6 +81,37 @@ Las acciones se redondean **hacia abajo** al lote, así que la pérdida real nun
 supera tu presupuesto.
 """,
     ),
+    (
+        "Ajustarla todos los días: permanecer en tu intervalo de confianza",
+        """
+Acá está el punto clave: el VaR, el CVaR y el ATR **cambian con el mercado**. Si
+elegís un stop hoy y lo dejás quieto, el nivel de confianza que creés tener se te
+va desalineando a medida que la volatilidad se mueve.
+
+**Ajustar la posición todos los días es lo que te mantiene *dentro* del intervalo
+de confianza que elegiste.** No reduce el {tail}% — lo **sostiene** en {tail}%.
+Si no reajustás, tu tasa real de rupturas se despega del {pct}% que pediste.
+
+- **Si la volatilidad sube**, el nivel se ensancha: un stop que antes era
+  razonable ahora queda *dentro* del ruido, y te sacan de la posición por
+  movimientos que ya son normales.
+- **Si la volatilidad baja**, el nivel se comprime: podés ajustar el stop y
+  liberar riesgo que ya no necesitás tener expuesto.
+- **Si el precio avanzó a tu favor**, subir el stop (*trailing*) va asegurando
+  ganancia y reduce lo que todavía tenés en juego.
+
+Eso es exactamente lo que hace una mesa institucional: recalibrar la exposición
+contra el régimen de volatilidad **vigente**, no fijar un número y olvidarlo.
+Correr esta herramienta a diario sobre tus posiciones abiertas es esa misma
+rutina.
+
+**Dos precisiones, para que quede claro qué te da y qué no:** el {pct}% *está
+definido* como el nivel que se excede el {tail}% de las ruedas, así que reajustar
+no elimina esos días malos — los mantiene en la frecuencia esperada en lugar de
+dejarla derivar. Y ningún stop protege contra un **gap** de apertura, porque el
+precio salta por encima de tu orden.
+""",
+    ),
 ]
 
 _CAVEAT = """
